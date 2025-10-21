@@ -33,6 +33,7 @@ L’application est **responsive**, compatible **mobile et desktop**, et repose 
 ---
 
 ## 📁 Structure du projet
+```
 project/
 │
 ├── css/
