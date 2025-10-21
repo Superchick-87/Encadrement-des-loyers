@@ -28,7 +28,15 @@ L’application est **responsive**, compatible **mobile et desktop**, et repose 
 ### 💡 Expérience utilisateur
 - Bloc d’introduction (`#intro`) visible tant qu’aucune zone n’est sélectionnée
 - Animation fluide à l’apparition des cartes
-- Design **responsive** : carte adaptative, boutons repositionnés, images redimensionnées
+
+---
+
+## 📱 Responsive Design
+
+- **Carte SVG** : hauteur réduite à `300px` sur mobile
+- **Boutons de zoom (+, -, reset)** : empilés verticalement dans le coin supérieur droit
+- **Images du bloc d’introduction** (`#intro-container`) : hauteur fixe de `80px`
+- **Cartes de données** : largeur adaptative, fond couleur correspondant à la zone avec opacité réduite
 
 ---
 
@@ -52,4 +60,49 @@ project/
 │
 ├── index.html # Fichier principal du projet
 └── README.md # Documentation du projet
+```
 
+---
+
+## 🧱 Technologies utilisées
+
+- HTML5, CSS3, JavaScript Vanilla pour l’interface et l’interactivité  
+- SVG pour les cartes vectorielles  
+- JSON pour le stockage des données  
+- Compatible desktop et mobile (responsive design)  
+- Animations via CSS transitions  
+
+---
+
+## 🎨 Personnalisation
+
+- **Couleurs des zones** : définies dans le fichier CSS (`.zone_1`, `.zone_2`, …)  
+- **Opacité des cartes** : configurable dans la fonction `colorToRgba(color, opacity)` du script JS  
+- **Images des catégories** : nom des fichiers doit correspondre à la catégorie nettoyée (sans accents ni espaces)  
+- **Animations** : durée et décalage modifiables dans la création des cartes JS  
+
+---
+
+## 🛠️ Améliorations possibles
+
+- Ajouter une **légende colorimétrique automatique**  
+- Filtrage par type de logement ou tranche de loyers  
+- Export PDF / image de la vue actuelle  
+- Amélioration de l’**accessibilité** (ARIA, navigation clavier)  
+- Support multi-langues (français / anglais)  
+- Ajout de graphiques ou histogrammes pour chaque zone  
+
+---
+
+## 👨‍💻 Auteur
+
+**[Ton Nom ou Organisation]**  
+📧 Contact : [ton.email@exemple.com]  
+🌐 GitHub : [https://github.com/<ton-utilisateur>](https://github.com/<ton-utilisateur>)  
+
+---
+
+## 📝 Licence
+
+Ce projet est distribué sous licence **MIT**.  
+Vous êtes libres de le réutiliser, le modifier et le distribuer à condition de conserver les mentions d’auteur.
