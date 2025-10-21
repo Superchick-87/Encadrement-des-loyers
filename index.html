@@ -4,182 +4,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Carte interactive avec zones et couche Agglo</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      margin: 20px;
-      text-align: center;
-    }
-
-    .svg-container {
-      width: 100%;
-      max-width: 800px;
-      margin: 20px auto;
-      overflow: hidden;
-      cursor: grab;
-      position: relative;
-      height: 500px;
-    }
-
-    /* 🟢 Sur mobile (écran ≤ 768 px) : réduire la hauteur */
-    @media (max-width: 768px) {
-      .svg-container {
-        height: 300px;
-      }
-    }
-
-    svg {
-      width: 100%;
-      height: 100%;
-      display: block;
-      user-select: none;
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-
-    g[id^="Zone_"] polygon {
-      stroke: #fff;
-      stroke-width: 0.25;
-      transition: opacity 0.3s ease, stroke-width 0.3s ease, filter 0.3s ease;
-      cursor: pointer;
-    }
-
-    .zone_1 polygon {
-      fill: #780000;
-    }
-
-    .zone_2 polygon {
-      fill: #c1121f;
-    }
-
-    .zone_3 polygon {
-      fill: #606c38;
-    }
-
-    .zone_4 polygon {
-      fill: #ffb703;
-    }
-
-    .zone_5 polygon {
-      fill: #669bbc;
-    }
-
-    .highlight {
-      opacity: 1 !important;
-      stroke: #ffffff;
-      stroke-width: 1.5;
-      filter: drop-shadow(0px 0px 3px rgba(0, 0, 0, 0.4));
-    }
-
-    .dimmed {
-      opacity: 0.2 !important;
-    }
-
-    select,
-    button {
-      padding: 8px 12px;
-      font-size: 16px;
-      margin: 5px;
-    }
-
-    #zoneData {
-      max-width: 800px;
-      margin: 20px auto;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      text-align: left;
-    }
-
-    .zone-group h3 {
-      margin: 0 0 10px 0;
-      font-size: 18px;
-      text-align: left;
-      border-radius: 5px;
-      padding: 10px;
-      color: white;
-    }
-
-    .zone-cards {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-      justify-content: flex-start;
-    }
-
-    .zone-card {
-      flex: 1 1 200px;
-      border-radius: 10px;
-      padding: 15px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #000;
-      transition: background-color 0.3s ease, transform 0.3s ease, opacity 0.3s ease;
-      opacity: 0;
-      transform: translateY(10px);
-    }
-
-    .zone-card.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .zone-card img {
-      width: 50px;
-      height: 50px;
-      object-fit: cover;
-      border-radius: 5px;
-    }
-
-    .zone-card-content h4 {
-      margin: 0 0 5px 0;
-      font-size: 16px;
-    }
-
-    .zone-card-content p {
-      margin: 2px 0;
-      font-size: 14px;
-    }
-
-    .zoom-controls {
-      position: absolute;
-      top: 130px;
-      right: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      background: rgba(255, 255, 255, 0.8);
-      border-radius: 8px;
-      padding: 6px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-      z-index: 10;
-    }
-
-    .zoom-controls button {
-      width: 40px;
-      height: 40px;
-      font-size: 20px;
-      font-weight: bold;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      background-color: #ffffff;
-      transition: background-color 0.2s ease;
-    }
-
-    .zoom-controls button:hover {
-      background-color: #e0e0e0;
-    }
-  </style>
+  <title>Carte interactive - Encadrement-des-loyers</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
-  <h2>Sélectionnez une zone</h2>
-
   <select id="zoneSelect">
     <option value="" selected disabled>Choisissez une zone</option>
     <option value="Zone_1">Zone 1</option>
@@ -196,17 +25,83 @@
   </div>
 
   <div class="svg-container" id="svgContainer"></div>
+  <div id="intro">
+    <p id="legend" class="legend">
+      Le zonage reflète l'influence de la localisation sur le niveau des loyers.
+      Il résulte d'un travail économétrique permettant d'isoler l'incidence
+      de la localisation, parmi les différents facteurs qui influencent
+      le niveau des loyers (taille du logement, époque de construction, type d'habitat...)
+    </p>
+    <h3>Les locations dans l'agglomération de Bordeaux selon le type de logement</h3>
+    <img class="imageIntro" src="images/visu_intro.png" alt="Visuel accueil">
+    <div id="intro-container" class="intro-container">
+      <div>
+        <img class="intro-container-img" src="images/ensemble.png" alt="">
+        <p class="intro-type">Ensemble</p>
+        <div class="intro-bloc-chiffres">
+          <div>
+            <p class="intro-chiffres">724 €</p>
+            <p class="intro-chiffres-legend">Loyer</p>
+          </div>
+          <div>
+            <p class="intro-chiffres">59 m²</p>
+            <p class="intro-chiffres-legend">Surface</p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <img class="intro-container-img" src="images/maisons.png" alt="">
+        <p class="intro-type">Maisons</p>
+        <div class="intro-bloc-chiffres">
+          <div>
+            <p class="intro-chiffres">995 €</p>
+            <p class="intro-chiffres-legend">Loyer</p>
+          </div>
+          <div>
+            <p class="intro-chiffres">89 m²</p>
+            <p class="intro-chiffres-legend">Surface</p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <img class="intro-container-img" src="images/appartements.png" alt="">
+        <p class="intro-type">Appartements</p>
+        <div class="intro-bloc-chiffres">
+          <div>
+            <p class="intro-chiffres">662 €</p>
+            <p class="intro-chiffres-legend">Loyer</p>
+          </div>
+          <div>
+            <p class="intro-chiffres">52 m²</p>
+            <p class="intro-chiffres-legend">Surface</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <div id="zoneData"></div>
-
+  <footer></footer>
   <script>
-    const container = document.getElementById('svgContainer');
-    const select = document.getElementById('zoneSelect');
-    const zoneDataDiv = document.getElementById('zoneData');
-    let svgInteractive, svgOverlay;
-    let originalViewBox;
-    let zoneStats = null;
+    /* -------------------------------------------------------------------------- */
+    /* 🧭 VARIABLES GLOBALES & ÉLÉMENTS PRINCIPAUX                                */
+    /* -------------------------------------------------------------------------- */
 
-    // Convertit n'importe quelle couleur CSS (rgb ou hex) en rgba avec opacité
+    const container = document.getElementById('svgContainer'); // Conteneur principal du SVG
+    const select = document.getElementById('zoneSelect');   // Menu déroulant de sélection
+    const zoneDataDiv = document.getElementById('zoneData');     // Zone d’affichage des données
+    let svgInteractive, svgOverlay;                                // Les deux calques SVG
+    let originalViewBox;                                           // ViewBox initiale pour reset zoom
+    let zoneStats = null;                                          // Données JSON des zones
+
+    /* -------------------------------------------------------------------------- */
+    /* 🎨 CONVERTISSEUR DE COULEURS → RGBA                                        */
+    /* -------------------------------------------------------------------------- */
+    // Convertit une couleur CSS (hex ou rgb) en rgba avec opacité personnalisée.
+    // Exemple : colorToRgba('#FF0000', 0.3) → 'rgba(255,0,0,0.3)'
     function colorToRgba(color, opacity = 0.2) {
       if (color.startsWith("rgba")) {
         return color.replace(/[\d.]+\)$/g, opacity + ")");
@@ -217,63 +112,72 @@
       }
       if (color.startsWith("#")) {
         let r, g, b;
-        if (color.length === 4) {
+        if (color.length === 4) { // Format court (#FFF)
           r = parseInt(color[1] + color[1], 16);
           g = parseInt(color[2] + color[2], 16);
           b = parseInt(color[3] + color[3], 16);
-        } else {
+        } else { // Format long (#FFFFFF)
           r = parseInt(color.substr(1, 2), 16);
           g = parseInt(color.substr(3, 2), 16);
           b = parseInt(color.substr(5, 2), 16);
         }
         return `rgba(${r}, ${g}, ${b}, ${opacity})`;
       }
-      return `rgba(0, 0, 0, ${opacity})`;
+      return `rgba(0,0,0,${opacity})`; // Couleur par défaut : noir
     }
 
+    /* -------------------------------------------------------------------------- */
+    /* 🗺️ CHARGEMENT DES CARTES SVG                                               */
+    /* -------------------------------------------------------------------------- */
     Promise.all([
-      fetch('images/zone-test.svg').then(res => res.text()),
-      fetch('images/Agglo.svg').then(res => res.text())
+      fetch('images/zone-test.svg').then(res => res.text()),   // Carte principale
+      fetch('images/Agglo.svg').then(res => res.text())        // Calque de superposition
     ]).then(([zoneText, overlayText]) => {
       container.innerHTML = zoneText + overlayText;
       svgInteractive = container.querySelector('svg:first-of-type');
       svgOverlay = container.querySelector('svg:last-of-type');
       originalViewBox = svgInteractive.getAttribute('viewBox').split(' ').map(Number);
-      svgOverlay.style.pointerEvents = 'none';
-      setupInteractions(svgInteractive);
-      setupZoom(svgInteractive, svgOverlay);
-      setupDrag(svgInteractive, svgOverlay);
-      loadZoneData();
+      svgOverlay.style.pointerEvents = 'none';                 // Désactive les clics sur la couche Agglo
+
+      setupInteractions(svgInteractive);                       // Active les clics sur les zones
+      setupZoom(svgInteractive, svgOverlay);                   // Active le zoom
+      setupDrag(svgInteractive, svgOverlay);                   // Active le déplacement
+      loadZoneData();                                          // Charge le JSON de données
     });
 
+    /* -------------------------------------------------------------------------- */
+    /* 🖱️ INTERACTIONS SUR LES ZONES                                              */
+    /* -------------------------------------------------------------------------- */
     function setupInteractions(svgRoot) {
-      const zones = svgRoot.querySelectorAll('g[id^="Zone_"]');
+      const zones = svgRoot.querySelectorAll('g[id^="Zone_"]'); // Toutes les zones identifiées
 
-      // Fonction commune de gestion de la sélection
+      // --- Fonction de sélection d’une zone ---
       function handleZoneSelection(zone) {
         const isSelected = zone.classList.contains('highlight');
         if (!isSelected) {
+          // On atténue toutes les zones sauf celle sélectionnée
           zones.forEach(z => { z.classList.remove('highlight'); z.classList.add('dimmed'); });
-          zone.parentNode.appendChild(zone);
+          zone.parentNode.appendChild(zone);                    // La zone passe au premier plan
           zone.classList.add('highlight');
           zone.classList.remove('dimmed');
-          select.value = zone.id;
+          select.value = zone.id;                               // Synchronisation avec le menu
         } else {
           zones.forEach(z => z.classList.remove('highlight', 'dimmed'));
           select.value = "";
         }
-        updateZoneData(select.value);
+        updateZoneData(select.value);                           // Rafraîchit les infos affichées
       }
 
-      // Gestion clic souris + tap tactile
+      // --- Gestion clics & tap tactile sur chaque zone ---
       zones.forEach(zone => {
         zone.addEventListener('click', () => handleZoneSelection(zone));
         zone.addEventListener('touchstart', e => {
-          e.preventDefault(); // empêche le scroll
+          e.preventDefault();                                   // Empêche le scroll pendant le tap
           handleZoneSelection(zone);
         }, { passive: false });
       });
 
+      // --- Gestion via le menu déroulant ---
       select.addEventListener('change', () => {
         const val = select.value;
         zones.forEach(z => z.classList.remove('highlight', 'dimmed'));
@@ -287,8 +191,13 @@
       });
     }
 
+    /* -------------------------------------------------------------------------- */
+    /* 🔍 GESTION DU ZOOM                                                         */
+    /* -------------------------------------------------------------------------- */
     function setupZoom(svgRoot, overlay) {
-      const zoomFactor = 1.2;
+      const zoomFactor = 1.2; // Facteur de zoom (20%)
+
+      // --- Fonction utilitaire de zoom ---
       const zoom = (factor) => {
         let [x, y, w, h] = svgRoot.getAttribute('viewBox').split(' ').map(Number);
         const newW = w / factor;
@@ -299,6 +208,8 @@
         svgRoot.setAttribute('viewBox', vb);
         overlay.setAttribute('viewBox', vb);
       };
+
+      // --- Boutons +, -, reset ---
       document.getElementById('zoomIn').addEventListener('click', () => zoom(zoomFactor));
       document.getElementById('zoomOut').addEventListener('click', () => zoom(1 / zoomFactor));
       document.getElementById('resetZoom').addEventListener('click', () => {
@@ -306,6 +217,8 @@
         svgRoot.setAttribute('viewBox', vb);
         overlay.setAttribute('viewBox', vb);
       });
+
+      // --- Zoom à la molette ---
       container.addEventListener('wheel', e => {
         e.preventDefault();
         const factor = e.deltaY < 0 ? zoomFactor : 1 / zoomFactor;
@@ -313,16 +226,20 @@
       });
     }
 
+    /* -------------------------------------------------------------------------- */
+    /* ✋ GESTION DU DÉPLACEMENT (DRAG)                                           */
+    /* -------------------------------------------------------------------------- */
     function setupDrag(svgRoot, overlay) {
       let isDragging = false, startX, startY, viewBox;
 
+      // Récupère les coordonnées (compatible souris & tactile)
       const getCoords = (e) => {
-        if (e.touches && e.touches.length) {
+        if (e.touches && e.touches.length)
           return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        }
         return { x: e.clientX, y: e.clientY };
       };
 
+      // --- Début du drag ---
       const startDrag = (e) => {
         isDragging = true;
         const { x, y } = getCoords(e);
@@ -333,6 +250,7 @@
         e.preventDefault();
       };
 
+      // --- Pendant le drag ---
       const duringDrag = (e) => {
         if (!isDragging) return;
         const { x, y } = getCoords(e);
@@ -343,6 +261,7 @@
         overlay.setAttribute('viewBox', vb);
       };
 
+      // --- Fin du drag ---
       const endDrag = () => {
         if (isDragging) {
           isDragging = false;
@@ -350,34 +269,41 @@
         }
       };
 
-      // 🖱️ Événements souris
+      // --- Événements souris ---
       container.addEventListener('mousedown', startDrag);
       window.addEventListener('mousemove', duringDrag);
       window.addEventListener('mouseup', endDrag);
 
-      // 📱 Événements tactiles
+      // --- Événements tactiles ---
       container.addEventListener('touchstart', startDrag, { passive: false });
       window.addEventListener('touchmove', duringDrag, { passive: false });
       window.addEventListener('touchend', endDrag);
     }
 
+    /* -------------------------------------------------------------------------- */
+    /* 📦 CHARGEMENT DES DONNÉES JSON                                             */
+    /* -------------------------------------------------------------------------- */
     function loadZoneData() {
       fetch('datas/datas.json')
         .then(res => res.json())
-        .then(data => {
-          zoneStats = data.zones;
-        });
+        .then(data => { zoneStats = data.zones; });
     }
 
+    /* -------------------------------------------------------------------------- */
+    /* 🧩 AFFICHAGE DES DONNÉES PAR ZONE                                          */
+    /* -------------------------------------------------------------------------- */
     function updateZoneData(zoneId) {
+      // Si aucune zone sélectionnée → on vide l’affichage
       if (!zoneStats || !zoneId) {
         zoneDataDiv.innerHTML = '';
+        updateIntroVisibility();
         return;
       }
 
       const zone = zoneStats.find(z => z.id === zoneId);
       if (!zone) return;
 
+      // Couleur de fond liée à la zone (pour cohérence visuelle)
       const polygon = svgInteractive.querySelector(`#${zone.id} polygon`);
       const color = polygon ? window.getComputedStyle(polygon).getPropertyValue('fill') : '#000';
       const colorOpacity = colorToRgba(color, 0.2);
@@ -385,12 +311,14 @@
       const zoneGroup = document.createElement('div');
       zoneGroup.className = 'zone-group';
 
+      // --- Titre coloré ---
       const h3 = document.createElement('h3');
       h3.textContent = zone.nom;
       h3.style.backgroundColor = color;
       h3.style.color = 'white';
       zoneGroup.appendChild(h3);
 
+      // --- Liste des cartes de données ---
       const cardsDiv = document.createElement('div');
       cardsDiv.className = 'zone-cards';
 
@@ -402,15 +330,15 @@
         card.style.transform = 'translateY(20px)';
         card.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
 
+        // Nom de fichier image dérivé de la catégorie
         const imageName = c.categorie
           .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-          .toLowerCase()
-          .replace(/\s+/g, '');
+          .toLowerCase().replace(/\s+/g, '');
 
         const img = document.createElement('img');
         img.src = `images/${imageName}.png`;
         img.alt = c.categorie;
-        img.onerror = () => img.src = 'images/default.png';
+        img.onerror = () => img.src = 'images/default.png'; // Image fallback
 
         const content = document.createElement('div');
         content.className = 'zone-card-content';
@@ -426,7 +354,7 @@
         card.appendChild(content);
         cardsDiv.appendChild(card);
 
-        // Animation décalée
+        // Animation d’apparition progressive
         setTimeout(() => {
           card.style.opacity = 1;
           card.style.transform = 'translateY(0)';
@@ -436,8 +364,22 @@
       zoneGroup.appendChild(cardsDiv);
       zoneDataDiv.innerHTML = '';
       zoneDataDiv.appendChild(zoneGroup);
+      updateIntroVisibility();
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /* 👋 AFFICHAGE / MASQUAGE DU BLOC INTRO                                      */
+    /* -------------------------------------------------------------------------- */
+    function updateIntroVisibility() {
+      const intro = document.getElementById('intro');
+      const zoneData = document.getElementById('zoneData');
+      if (!intro || !zoneData) return;
+
+      // Si aucune donnée affichée → on montre le bloc d’intro
+      intro.style.display = zoneData.innerHTML.trim() === '' ? 'block' : 'none';
     }
   </script>
+
 
 
 </body>
