@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carte interactive avec zones et couche Agglo</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      text-align: center;
+    }
+
+    .svg-container {
+      width: 100%;
+      max-width: 800px;
+      margin: 20px auto;
+      overflow: hidden;
+      cursor: grab;
+      position: relative;
+      height: 500px;
+    }
+
+    /* 🟢 Sur mobile (écran ≤ 768 px) : réduire la hauteur */
+    @media (max-width: 768px) {
+      .svg-container {
+        height: 300px;
+      }
+    }
+
+    svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      user-select: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    g[id^="Zone_"] polygon {
+      stroke: #fff;
+      stroke-width: 0.25;
+      transition: opacity 0.3s ease, stroke-width 0.3s ease, filter 0.3s ease;
+      cursor: pointer;
+    }
+
+    .zone_1 polygon {
+      fill: #780000;
+    }
+
+    .zone_2 polygon {
+      fill: #c1121f;
+    }
+
+    .zone_3 polygon {
+      fill: #606c38;
+    }
+
+    .zone_4 polygon {
+      fill: #ffb703;
+    }
+
+    .zone_5 polygon {
+      fill: #669bbc;
+    }
+
+    .highlight {
+      opacity: 1 !important;
+      stroke: #ffffff;
+      stroke-width: 1.5;
+      filter: drop-shadow(0px 0px 3px rgba(0, 0, 0, 0.4));
+    }
+
+    .dimmed {
+      opacity: 0.2 !important;
+    }
+
+    select,
+    button {
+      padding: 8px 12px;
+      font-size: 16px;
+      margin: 5px;
+    }
+
+    #zoneData {
+      max-width: 800px;
+      margin: 20px auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      text-align: left;
+    }
+
+    .zone-group h3 {
+      margin: 0 0 10px 0;
+      font-size: 18px;
+      text-align: left;
+      border-radius: 5px;
+      padding: 10px;
+      color: white;
+    }
+
+    .zone-cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: flex-start;
+    }
+
+    .zone-card {
+      flex: 1 1 200px;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #000;
+      transition: background-color 0.3s ease, transform 0.3s ease, opacity 0.3s ease;
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    .zone-card.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .zone-card img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+
+    .zone-card-content h4 {
+      margin: 0 0 5px 0;
+      font-size: 16px;
+    }
+
+    .zone-card-content p {
+      margin: 2px 0;
+      font-size: 14px;
+    }
+
+    .zoom-controls {
+      position: absolute;
+      top: 130px;
+      right: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 8px;
+      padding: 6px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      z-index: 10;
+    }
+
+    .zoom-controls button {
+      width: 40px;
+      height: 40px;
+      font-size: 20px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background-color: #ffffff;
+      transition: background-color 0.2s ease;
+    }
+
+    .zoom-controls button:hover {
+      background-color: #e0e0e0;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Sélectionnez une zone</h2>
+
+  <select id="zoneSelect">
+    <option value="" selected disabled>Choisissez une zone</option>
+    <option value="Zone_1">Zone 1</option>
+    <option value="Zone_2">Zone 2</option>
+    <option value="Zone_3">Zone 3</option>
+    <option value="Zone_4">Zone 4</option>
+    <option value="Zone_5">Zone 5</option>
+  </select>
+
+  <div class="zoom-controls">
+    <button id="zoomIn">+</button>
+    <button id="zoomOut">−</button>
+    <button id="resetZoom">⟳</button>
+  </div>
+
+  <div class="svg-container" id="svgContainer"></div>
+  <div id="zoneData"></div>
+
+  <script>
+    const container = document.getElementById('svgContainer');
+    const select = document.getElementById('zoneSelect');
+    const zoneDataDiv = document.getElementById('zoneData');
+    let svgInteractive, svgOverlay;
+    let originalViewBox;
+    let zoneStats = null;
+
+    // Convertit n'importe quelle couleur CSS (rgb ou hex) en rgba avec opacité
+    function colorToRgba(color, opacity = 0.2) {
+      if (color.startsWith("rgba")) {
+        return color.replace(/[\d.]+\)$/g, opacity + ")");
+      }
+      if (color.startsWith("rgb(")) {
+        const parts = color.match(/\d+/g);
+        return `rgba(${parts[0]}, ${parts[1]}, ${parts[2]}, ${opacity})`;
+      }
+      if (color.startsWith("#")) {
+        let r, g, b;
+        if (color.length === 4) {
+          r = parseInt(color[1] + color[1], 16);
+          g = parseInt(color[2] + color[2], 16);
+          b = parseInt(color[3] + color[3], 16);
+        } else {
+          r = parseInt(color.substr(1, 2), 16);
+          g = parseInt(color.substr(3, 2), 16);
+          b = parseInt(color.substr(5, 2), 16);
+        }
+        return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+      }
+      return `rgba(0, 0, 0, ${opacity})`;
+    }
+
+    Promise.all([
+      fetch('images/zone-test.svg').then(res => res.text()),
+      fetch('images/Agglo.svg').then(res => res.text())
+    ]).then(([zoneText, overlayText]) => {
+      container.innerHTML = zoneText + overlayText;
+      svgInteractive = container.querySelector('svg:first-of-type');
+      svgOverlay = container.querySelector('svg:last-of-type');
+      originalViewBox = svgInteractive.getAttribute('viewBox').split(' ').map(Number);
+      svgOverlay.style.pointerEvents = 'none';
+      setupInteractions(svgInteractive);
+      setupZoom(svgInteractive, svgOverlay);
+      setupDrag(svgInteractive, svgOverlay);
+      loadZoneData();
+    });
+
+    function setupInteractions(svgRoot) {
+      const zones = svgRoot.querySelectorAll('g[id^="Zone_"]');
+
+      // Fonction commune de gestion de la sélection
+      function handleZoneSelection(zone) {
+        const isSelected = zone.classList.contains('highlight');
+        if (!isSelected) {
+          zones.forEach(z => { z.classList.remove('highlight'); z.classList.add('dimmed'); });
+          zone.parentNode.appendChild(zone);
+          zone.classList.add('highlight');
+          zone.classList.remove('dimmed');
+          select.value = zone.id;
+        } else {
+          zones.forEach(z => z.classList.remove('highlight', 'dimmed'));
+          select.value = "";
+        }
+        updateZoneData(select.value);
+      }
+
+      // Gestion clic souris + tap tactile
+      zones.forEach(zone => {
+        zone.addEventListener('click', () => handleZoneSelection(zone));
+        zone.addEventListener('touchstart', e => {
+          e.preventDefault(); // empêche le scroll
+          handleZoneSelection(zone);
+        }, { passive: false });
+      });
+
+      select.addEventListener('change', () => {
+        const val = select.value;
+        zones.forEach(z => z.classList.remove('highlight', 'dimmed'));
+        if (val) {
+          const selZone = svgRoot.querySelector('#' + val);
+          selZone.classList.add('highlight');
+          zones.forEach(z => { if (z !== selZone) z.classList.add('dimmed'); });
+          selZone.parentNode.appendChild(selZone);
+        }
+        updateZoneData(val);
+      });
+    }
+
+    function setupZoom(svgRoot, overlay) {
+      const zoomFactor = 1.2;
+      const zoom = (factor) => {
+        let [x, y, w, h] = svgRoot.getAttribute('viewBox').split(' ').map(Number);
+        const newW = w / factor;
+        const newH = h / factor;
+        const newX = x + (w - newW) / 2;
+        const newY = y + (h - newH) / 2;
+        const vb = `${newX} ${newY} ${newW} ${newH}`;
+        svgRoot.setAttribute('viewBox', vb);
+        overlay.setAttribute('viewBox', vb);
+      };
+      document.getElementById('zoomIn').addEventListener('click', () => zoom(zoomFactor));
+      document.getElementById('zoomOut').addEventListener('click', () => zoom(1 / zoomFactor));
+      document.getElementById('resetZoom').addEventListener('click', () => {
+        const vb = originalViewBox.join(' ');
+        svgRoot.setAttribute('viewBox', vb);
+        overlay.setAttribute('viewBox', vb);
+      });
+      container.addEventListener('wheel', e => {
+        e.preventDefault();
+        const factor = e.deltaY < 0 ? zoomFactor : 1 / zoomFactor;
+        zoom(factor);
+      });
+    }
+
+    function setupDrag(svgRoot, overlay) {
+      let isDragging = false, startX, startY, viewBox;
+
+      const getCoords = (e) => {
+        if (e.touches && e.touches.length) {
+          return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        }
+        return { x: e.clientX, y: e.clientY };
+      };
+
+      const startDrag = (e) => {
+        isDragging = true;
+        const { x, y } = getCoords(e);
+        startX = x;
+        startY = y;
+        viewBox = svgRoot.getAttribute('viewBox').split(' ').map(Number);
+        container.style.cursor = 'grabbing';
+        e.preventDefault();
+      };
+
+      const duringDrag = (e) => {
+        if (!isDragging) return;
+        const { x, y } = getCoords(e);
+        const dx = (startX - x) * (viewBox[2] / container.clientWidth);
+        const dy = (startY - y) * (viewBox[3] / container.clientHeight);
+        const vb = `${viewBox[0] + dx} ${viewBox[1] + dy} ${viewBox[2]} ${viewBox[3]}`;
+        svgRoot.setAttribute('viewBox', vb);
+        overlay.setAttribute('viewBox', vb);
+      };
+
+      const endDrag = () => {
+        if (isDragging) {
+          isDragging = false;
+          container.style.cursor = 'grab';
+        }
+      };
+
+      // 🖱️ Événements souris
+      container.addEventListener('mousedown', startDrag);
+      window.addEventListener('mousemove', duringDrag);
+      window.addEventListener('mouseup', endDrag);
+
+      // 📱 Événements tactiles
+      container.addEventListener('touchstart', startDrag, { passive: false });
+      window.addEventListener('touchmove', duringDrag, { passive: false });
+      window.addEventListener('touchend', endDrag);
+    }
+
+    function loadZoneData() {
+      fetch('datas/datas.json')
+        .then(res => res.json())
+        .then(data => {
+          zoneStats = data.zones;
+        });
+    }
+
+    function updateZoneData(zoneId) {
+      if (!zoneStats || !zoneId) {
+        zoneDataDiv.innerHTML = '';
+        return;
+      }
+
+      const zone = zoneStats.find(z => z.id === zoneId);
+      if (!zone) return;
+
+      const polygon = svgInteractive.querySelector(`#${zone.id} polygon`);
+      const color = polygon ? window.getComputedStyle(polygon).getPropertyValue('fill') : '#000';
+      const colorOpacity = colorToRgba(color, 0.2);
+
+      const zoneGroup = document.createElement('div');
+      zoneGroup.className = 'zone-group';
+
+      const h3 = document.createElement('h3');
+      h3.textContent = zone.nom;
+      h3.style.backgroundColor = color;
+      h3.style.color = 'white';
+      zoneGroup.appendChild(h3);
+
+      const cardsDiv = document.createElement('div');
+      cardsDiv.className = 'zone-cards';
+
+      zone.categories.forEach((c, index) => {
+        const card = document.createElement('div');
+        card.className = 'zone-card';
+        card.style.backgroundColor = colorOpacity;
+        card.style.opacity = 0;
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+
+        const imageName = c.categorie
+          .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+          .replace(/\s+/g, '');
+
+        const img = document.createElement('img');
+        img.src = `images/${imageName}.png`;
+        img.alt = c.categorie;
+        img.onerror = () => img.src = 'images/default.png';
+
+        const content = document.createElement('div');
+        content.className = 'zone-card-content';
+        content.innerHTML = `
+        <h4>${c.categorie}</h4>
+        <p><strong>Loyer médian :</strong> ${c.loyer_median} €/m²</p>
+        <p><strong>Loyer moyen :</strong> ${c.loyer_moyen} €/m²</p>
+        <p><strong>Surface moyenne :</strong> ${c.surface_habitable_moyenne} m²</p>
+        <p><strong>Logements enquêtés :</strong> ${c.nombre_logements}</p>
+      `;
+
+        card.appendChild(img);
+        card.appendChild(content);
+        cardsDiv.appendChild(card);
+
+        // Animation décalée
+        setTimeout(() => {
+          card.style.opacity = 1;
+          card.style.transform = 'translateY(0)';
+        }, 100 * index);
+      });
+
+      zoneGroup.appendChild(cardsDiv);
+      zoneDataDiv.innerHTML = '';
+      zoneDataDiv.appendChild(zoneGroup);
+    }
+  </script>
+
+
+</body>
+
+</html>

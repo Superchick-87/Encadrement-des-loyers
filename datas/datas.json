@@ -1,0 +1,139 @@
+{
+    "zones": [
+        {
+            "id": "Zone_1",
+            "nom": "Zone 1",
+            "categories": [
+                {
+                    "categorie": "Ensemble",
+                    "loyer_median": 14.8,
+                    "loyer_moyen": 14,
+                    "surface_habitable_moyenne": 53,
+                    "nombre_logements": 2992
+                },
+                {
+                    "categorie": "Maisons",
+                    "loyer_median": 13.1,
+                    "loyer_moyen": 13,
+                    "surface_habitable_moyenne": 98,
+                    "nombre_logements": 101
+                },
+                {
+                    "categorie": "Appartements",
+                    "loyer_median": 15,
+                    "loyer_moyen": 14.1,
+                    "surface_habitable_moyenne": 51,
+                    "nombre_logements": 2891
+                }
+            ]
+        },
+        {
+            "id": "Zone_2",
+            "nom": "Zone 2",
+            "categories": [
+                {
+                    "categorie": "Ensemble",
+                    "loyer_median": 13.9,
+                    "loyer_moyen": 13.3,
+                    "surface_habitable_moyenne": 53,
+                    "nombre_logements": 3022
+                },
+                {
+                    "categorie": "Maisons",
+                    "loyer_median": 13.1,
+                    "loyer_moyen": 12.8,
+                    "surface_habitable_moyenne": 85,
+                    "nombre_logements": 251
+                },
+                {
+                    "categorie": "Appartements",
+                    "loyer_median": 14.1,
+                    "loyer_moyen": 13.5,
+                    "surface_habitable_moyenne": 48,
+                    "nombre_logements": 2771
+                }
+            ]
+        },
+        {
+            "id": "Zone_3",
+            "nom": "Zone 3",
+            "categories": [
+                {
+                    "categorie": "Ensemble",
+                    "loyer_median": 12.5,
+                    "loyer_moyen": 12.2,
+                    "surface_habitable_moyenne": 60,
+                    "nombre_logements": 7256
+                },
+                {
+                    "categorie": "Maisons",
+                    "loyer_median": 11.9,
+                    "loyer_moyen": 11.7,
+                    "surface_habitable_moyenne": 91,
+                    "nombre_logements": 546
+                },
+                {
+                    "categorie": "Appartements",
+                    "loyer_median": 12.7,
+                    "loyer_moyen": 12.4,
+                    "surface_habitable_moyenne": 53,
+                    "nombre_logements": 6710
+                }
+            ]
+        },
+        {
+            "id": "Zone_4",
+            "nom": "Zone 4",
+            "categories": [
+                {
+                    "categorie": "Ensemble",
+                    "loyer_median": 12.1,
+                    "loyer_moyen": 11.8,
+                    "surface_habitable_moyenne": 60,
+                    "nombre_logements": 7631
+                },
+                {
+                    "categorie": "Maisons",
+                    "loyer_median": 11.5,
+                    "loyer_moyen": 11.2,
+                    "surface_habitable_moyenne": 87,
+                    "nombre_logements": 445
+                },
+                {
+                    "categorie": "Appartements",
+                    "loyer_median": 12.2,
+                    "loyer_moyen": 12,
+                    "surface_habitable_moyenne": 53,
+                    "nombre_logements": 7186
+                }
+            ]
+        },
+        {
+            "id": "Zone_5",
+            "nom": "Zone 5",
+            "categories": [
+                {
+                    "categorie": "Ensemble",
+                    "loyer_median": 10.8,
+                    "loyer_moyen": 10.3,
+                    "surface_habitable_moyenne": 70,
+                    "nombre_logements": 3080
+                },
+                {
+                    "categorie": "Maisons",
+                    "loyer_median": 10.2,
+                    "loyer_moyen": 9.8,
+                    "surface_habitable_moyenne": 88,
+                    "nombre_logements": 489
+                },
+                {
+                    "categorie": "Appartements",
+                    "loyer_median": 11.3,
+                    "loyer_moyen": 10.9,
+                    "surface_habitable_moyenne": 56,
+                    "nombre_logements": 2591
+                }
+            ]
+        }
+    ]
+}
